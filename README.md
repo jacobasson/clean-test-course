@@ -30,11 +30,11 @@ The Hangry Hippo app is divided into a back end and a front end. It is preferred
 
 The app's back end was originally created using [django](https://www.djangoproject.com/) and the [django REST framework](https://www.django-rest-framework.org/). For more information, read [here](https://stackabuse.com/creating-a-rest-api-with-django-rest-framework/).
 
-The back end requires [Python 3.8](https://www.python.org/downloads/). To make sure this is what your machine is working with, we recommend using this [Python version manager](https://realpython.com/intro-to-pyenv/).
+The back end is pinned to [Python 3.8](https://www.python.org/downloads/) by its Docker image. Python 3.11 is also supported for local development with the current dependency pins. To manage Python versions, we recommend using this [Python version manager](https://realpython.com/intro-to-pyenv/).
 
 #### Front End Requirements
 
-The front end was originally created using [Create React App](https://create-react-app.dev/), and it requires [Node 16](https://nodejs.org/en/download/current/) or newer. To make sure this is what your machine is working with, we recommend using this [Node version manager](https://github.com/nvm-sh/nvm).
+The front end was originally created using [Create React App](https://create-react-app.dev/). Use [Node 18](https://nodejs.org/en/download/) LTS for local development, matching the frontend Docker image. To manage Node versions, we recommend using this [Node version manager](https://github.com/nvm-sh/nvm).
 
 ## Local Installation
 
@@ -48,23 +48,25 @@ The front end was originally created using [Create React App](https://create-rea
 
     Windows:
 
-        cd clean-test-course\backend\hangry_api
+        cd clean-test-course\backend
 
     macOS/Linux:
 
-        cd clean-test-course/backend/hangry_api
+        cd clean-test-course/backend
 
 2.  Set up a virtual environment.
 
-        python3 -m venv env
+        cd backend
+py -3.11 -m venv env
 
-    > **Note:** `python3 -m venv env` sets up a separate environment where pip can install packages without affecting your global Python installation (if `python3` fails, try `python`).
+
+        > **Note:** `python3 -m venv env` sets up a separate environment where pip can install packages without affecting your global Python installation (if `python3` fails, try `python`).
 
 3.  Activate the environment.
 
     Windows:
 
-        env\Scripts\activate
+        .\env\Scripts\Activate.ps1
 
     macOS/Linux:
 
@@ -74,21 +76,25 @@ The front end was originally created using [Create React App](https://create-rea
 
 4.  Install the dependencies.
 
-        pip install -r requirements.txt
+        pip install -r hangry_api/requirements.txt
+
+    Install the backend test dependencies as well:
+
+        pip install pytest django_mock_queries coverage
 
 5.  Run the server
 
-          manage.py runserver
+          python hangry_api/manage.py runserver
 
     > **Note:** If the current working directory isn't included in your OS's PATH environment variable, you'll need to prepend it to the command like so:
 
     Windows:
 
-        .\manage.py runserver
+        python hangry_api\manage.py runserver
 
     macOS/Linux:
 
-        ./manage.py runserver
+        python hangry_api/manage.py runserver
 
     > **Note:** If you're running Python 3.13 or higher you'll get `ModuleNotFoundError: No module named 'cgi'`. Use `pip install legacy-cgi` to install a community-based version of the `cgi` module. That should get you up and running.
 
@@ -134,7 +140,7 @@ The front end was originally created using [Create React App](https://create-rea
 
 2.  Run the tests.
 
-        coverage run -m --source=./hangry_api pytest
+        coverage run -m --source=./hangry_api pytest hangry_api/tests
 
     > **Note:** The server should not be running when you run tests.
 
