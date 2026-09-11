@@ -1,10 +1,14 @@
+# GitHub Actions workflow for Lesson 5 backend validation and deployment.
+# This workflow runs on pushes to the lesson-5 branch.
 name: Lesson 5 SAST
 
 on:
   push:
     branches:
       - lesson-5
+
 jobs:
+  # First stage: static security scan of the backend code.
   security_test:
     runs-on: ubuntu-latest
     defaults:
@@ -12,29 +16,50 @@ jobs:
         working-directory: backend
     name: Run pycharm security test
     steps:
+      # Check out the repository so the workflow can access the source code.
       - uses: actions/checkout@v7.0.1
+
+      # Ensure the Django app is not running in debug mode during the security check.
+      - name: disable debug
+        run: |
+          sed -i 's/DEBUG = True/DEBUG = False/g' hangry_api/hangry_api/settings.py
+
+      # Run the PyCharm security scanner to identify potential code issues.
       - name: Run pycharm security test
         uses: tonybaloney/pycharm-security@1.25.1
-  unit_test:  
+        with:
+          fail_on_warnings: 'yes'
+
+  # Second stage: run the backend unit tests after security passes.
+  unit_test:
     needs: [security_test]
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
     steps:
+      # Fetch the latest code before setting up the Python environment.
       - uses: actions/checkout@v7.0.1
+
+      # Configure the required Python version for the backend tests.
       - name: Set up Python 3.10
         uses: actions/setup-python@v7
         with:
           python-version: '3.10'
+
+      # Install the dependencies needed to run the Django test suite.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest django_mock_queries six coverage
+
+      # Execute the unit tests and print a coverage summary.
       - name: Unit Tests
         run: |
           coverage run -m --source=./hangry_api pytest
           coverage report
+
+  # Final stage: package the backend for deployment after tests pass.
   deploy:
     needs: [unit_test]
     runs-on: ubuntu-latest
@@ -42,8 +67,18 @@ jobs:
       run:
         working-directory: backend
     steps:
+      # Retrieve the repository contents for deployment packaging.
       - uses: actions/checkout@v7.0.1
+
+      # Turn off debug mode in production-like deployment settings.
+      - name: Disable Debug
+        run: |
+          sed -i 's/DEBUG = True/DEBUG = False/g' hangry_api/hangry_api/settings.py
+
+      # Bundle the application files into a deployable zip archive.
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
+
+      # Placeholder step for the actual Elastic Beanstalk deployment command.
       - name: '**PLACEHOLDER** Deploy to Elastic Beanstalk'
         run: echo Placeholder for Deployment
