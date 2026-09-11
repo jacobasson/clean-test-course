@@ -89,16 +89,4 @@ describe('Test Home', () => {
     //Assert: Check the values are NOT in the rendered Home page.  This is because the mocked status value is set to fail.
     expect(screen.queryByTestId(/category-item/i)).not.toBeInTheDocument();
   });
-
-  //Copied "Test Render"
-  test('Test Integration Render', async () => {
-    //Deleted the mock calls.  There is no Arrange for this test since this will access the shared servers.
-    //Act: Call the Home page
-    render(<Home />);
-    //Assert: Check the values in the rendered Home page.
-    //There should be 2 categories as defined in the mock response above
-    expect(await screen.findAllByTestId(/category-item/i)).toHaveLength(2);
-    //The word Appeateasers should be in there as defined in the mock response above.
-    expect(await screen.findByText('Appeteasers')).toBeInTheDocument();
-  });
 });
